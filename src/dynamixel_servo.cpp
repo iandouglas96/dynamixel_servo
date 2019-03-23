@@ -10,6 +10,9 @@ void DynamixelServo::regularFreqCallback(const ros::TimerEvent&) {
   msg.header.seq = angle_pub_seq_++;
   msg.header.stamp = ros::Time::now();
   int pos = servo->getPosition();
+  if (pos < 0) {
+    ROS_WARN("Bad Packet from Servo");
+  }
   msg.position.push_back(pos);
   angle_pub_.publish(msg);
 
@@ -27,6 +30,7 @@ void DynamixelServo::reconfigureCallback(dynamixel_servo::DynamixelServoConfig &
   speed_ = config.speed;
   upper_stop_ = config.upper_stop;
   lower_stop_ = config.lower_stop; 
+  servo->setPosition(lower_stop_, speed_);
 }
 
 void DynamixelServo::initialize() {
@@ -51,6 +55,8 @@ void DynamixelServo::initialize() {
 
 void DynamixelServo::sweepModeCallback(const std_msgs::Bool::ConstPtr& msg) {
   sweeping_ = msg->data;
+  if (sweeping_) 
+    servo->setPosition(lower_stop_, speed_);
 }
 
 void DynamixelServo::angleCallback(const std_msgs::Int16::ConstPtr& msg) {
