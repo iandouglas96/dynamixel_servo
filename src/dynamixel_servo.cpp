@@ -30,7 +30,8 @@ void DynamixelServo::reconfigureCallback(dynamixel_servo::DynamixelServoConfig &
   speed_ = config.speed;
   upper_stop_ = config.upper_stop;
   lower_stop_ = config.lower_stop; 
-  servo->setPosition(lower_stop_, speed_);
+  if (sweeping_)  
+    servo->setPosition(lower_stop_, speed_);
 }
 
 void DynamixelServo::initialize() {
